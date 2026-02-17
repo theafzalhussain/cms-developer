@@ -60,7 +60,7 @@ const Media = mongoose.model('Media', MediaSchema);
 cloudinary.config({
     cloud_name: 'dtfvoxw1p',
     api_key: '551368853328319',
-    api_secret: 'YAHA_APNA_API_SECRET_DAALEIN' // <--- Isse badalna mat bhulna
+    api_secret: '6WKoU9LzhQf4v5GCjLzK-ZBgnRw' // <--- Isse badalna mat bhulna
 });
 
 // Cloudinary Storage Setup
