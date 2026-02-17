@@ -2260,11 +2260,25 @@ textarea.form-control {
     </div>
 <script>
 // Configuration
-const API_URL = "http://localhost:3000/api";
-const UPLOADS_URL = "http://localhost:3000";
+const API_URL = "https://cms-developer-1.onrender.com/api";
+const UPLOADS_URL = ""; // Cloudinary ke liye khali rakha hai
 let currentUser = null;
 let selectedFile = null;
 let allMediaData = [];
+
+// --- INITIALIZATION (Persistent Login Check) ---
+window.addEventListener('load', () => {
+    const saved = localStorage.getItem('cmsUser');
+    if(saved) {
+        currentUser = JSON.parse(saved);
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('dashboard').classList.add('active');
+        setupUI(); 
+        loadDashboard();
+        // Default page
+        switchToPage('dashboard');
+    }
+});
 
 // --- UI CORE FUNCTIONS ---
 function openModal(id) { document.getElementById(id).classList.add('active'); }
@@ -2273,13 +2287,15 @@ function closeModal(id) {
     document.getElementById(id).classList.remove('active'); 
     if(id === 'mediaModal') {
         document.getElementById('mediaForm').reset();
-        // Modal ko wapas "Upload" mode par set karna
         document.getElementById('editMediaId').value = "";
         document.getElementById('mediaModalTitle').textContent = "Upload Media";
         document.getElementById('fileUploadContainer').style.display = 'block';
         document.getElementById('uploadButton').textContent = "Upload";
         selectedFile = null;
     }
+    // Content modals reset
+    if(id === 'pageModal') document.getElementById('pageForm').reset();
+    if(id === 'postModal') document.getElementById('postForm').reset();
 }
 
 function showToast(msg, type = 'success') {
@@ -2292,7 +2308,6 @@ function showToast(msg, type = 'success') {
 
 // --- NAVIGATION ---
 async function switchToPage(page) {
-    // Side effect: Close profile dropdown when switching page
     if (profileDropdown) profileDropdown.classList.remove('active');
 
     document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
@@ -2306,7 +2321,6 @@ async function switchToPage(page) {
 
     document.getElementById('pageTitle').textContent = page.charAt(0).toUpperCase() + page.slice(1);
     
-    // Close sidebar on mobile after clicking
     const sidebar = document.getElementById('sidebar');
     if(sidebar) sidebar.classList.remove('mobile-active');
 
@@ -2332,12 +2346,15 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         const data = await res.json();
         if (data.success) {
             currentUser = data.user;
+            // Save to localStorage so it remembers after refresh
             localStorage.setItem('cmsUser', JSON.stringify(currentUser));
+            
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('dashboard').classList.add('active');
             setupUI();
             loadDashboard();
-        } else { showToast("Invalid Credentials", "error"); }
+            showToast("Welcome back, " + currentUser.name);
+        } else { showToast(data.message || "Invalid Credentials", "error"); }
     } catch (err) { showToast("Server Error", "error"); }
 });
 
@@ -2346,8 +2363,12 @@ function setupUI() {
     document.getElementById('userName').textContent = currentUser.name;
     document.getElementById('userRole').textContent = currentUser.role;
     const avatar = document.getElementById('userAvatar');
-    if(currentUser.profilePic) avatar.innerHTML = `<img src="${UPLOADS_URL + currentUser.profilePic}" style="width:100%;height:100%;border-radius:50%">`;
-    else avatar.textContent = currentUser.name.charAt(0);
+    
+    if(currentUser.profilePic) {
+        avatar.innerHTML = `<img src="${currentUser.profilePic}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+    } else {
+        avatar.textContent = currentUser.name.charAt(0);
+    }
 }
 
 // --- SETTINGS LOGIC ---
@@ -2358,8 +2379,7 @@ function loadSettings() {
     const preview = document.getElementById('settingProfilePreview');
     if(preview) {
         const fallback = "https://placehold.co/130x130/1e1e2e/ffffff?text=User";
-        preview.src = currentUser.profilePic ? UPLOADS_URL + currentUser.profilePic : fallback;
-        preview.onerror = function() { this.src = fallback; };
+        preview.src = currentUser.profilePic ? currentUser.profilePic : fallback;
     }
 }
 
@@ -2412,15 +2432,16 @@ async function uploadProfilePic(e) {
             currentUser.profilePic = data.url;
             localStorage.setItem('cmsUser', JSON.stringify(currentUser));
             setupUI();
-            document.getElementById('settingProfilePreview').src = UPLOADS_URL + data.url;
+            document.getElementById('settingProfilePreview').src = data.url;
             showToast("Profile Picture Updated!");
         }
     } catch (err) { showToast("Avatar upload failed", "error"); }
 }
 
-// --- FORM SUBMISSIONS ---
+// --- FORM SUBMISSIONS (With Edit/Update Support) ---
 document.getElementById('pageForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const id = document.getElementById('editPageId')?.value; // Hidden input check
     const data = {
         title: document.getElementById('pageTitleInput').value,
         content: document.getElementById('pageContent').value,
@@ -2428,16 +2449,26 @@ document.getElementById('pageForm').addEventListener('submit', async (e) => {
         author: currentUser.name,
         type: 'pages'
     };
-    const res = await fetch(`${API_URL}/pages`, {
-        method: 'POST',
+
+    const method = id ? 'PUT' : 'POST';
+    const url = id ? `${API_URL}/pages/${id}` : `${API_URL}/pages`;
+
+    const res = await fetch(url, {
+        method: method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
     });
-    if(res.ok) { showToast("Page saved to Database!"); closeModal('pageModal'); loadPages(); loadDashboard(); }
+    if(res.ok) { 
+        showToast(id ? "Page Updated!" : "Page Created!"); 
+        closeModal('pageModal'); 
+        loadPages(); 
+        loadDashboard(); 
+    }
 });
 
 document.getElementById('postForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const id = document.getElementById('editPostId')?.value; // Hidden input check
     const data = {
         title: document.getElementById('postTitle').value,
         content: document.getElementById('postContent').value,
@@ -2446,12 +2477,21 @@ document.getElementById('postForm').addEventListener('submit', async (e) => {
         author: currentUser.name,
         type: 'posts'
     };
-    const res = await fetch(`${API_URL}/posts`, {
-        method: 'POST',
+
+    const method = id ? 'PUT' : 'POST';
+    const url = id ? `${API_URL}/posts/${id}` : `${API_URL}/posts`;
+
+    const res = await fetch(url, {
+        method: method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
     });
-    if(res.ok) { showToast("Post saved to Database!"); closeModal('postModal'); loadPosts(); loadDashboard(); }
+    if(res.ok) { 
+        showToast(id ? "Post Updated!" : "Post Created!"); 
+        closeModal('postModal'); 
+        loadPosts(); 
+        loadDashboard(); 
+    }
 });
 
 // --- DATA LOADERS ---
@@ -2459,24 +2499,43 @@ async function loadPages() {
     const res = await fetch(`${API_URL}/pages`);
     const data = await res.json();
     document.getElementById('pagesTable').innerHTML = data.map(p => `
-        <tr><td>${p.title}</td><td>${p.author}</td><td><span class="status-badge status-${p.status}">${p.status}</span></td><td>${p.date}</td>
-        <td><button class="btn-icon" onclick="deleteItem('pages', '${p.id}')">🗑️</button></td></tr>`).join('');
+        <tr>
+            <td>${p.title}</td>
+            <td>${p.author}</td>
+            <td><span class="status-badge status-${p.status}">${p.status}</span></td>
+            <td>${p.date}</td>
+            <td>
+                <button class="btn-icon" onclick="deleteItem('pages', '${p.id}')">🗑️</button>
+            </td>
+        </tr>`).join('');
 }
 
 async function loadPosts() {
     const res = await fetch(`${API_URL}/posts`);
     const data = await res.json();
     document.getElementById('postsTable').innerHTML = data.map(p => `
-        <tr><td>${p.title}</td><td>${p.author}</td><td>${p.category}</td><td><span class="status-badge status-${p.status}">${p.status}</span></td><td>${p.date}</td>
-        <td><button class="btn-icon" onclick="deleteItem('posts', '${p.id}')">🗑️</button></td></tr>`).join('');
+        <tr>
+            <td>${p.title}</td>
+            <td>${p.author}</td>
+            <td>${p.category}</td>
+            <td><span class="status-badge status-${p.status}">${p.status}</span></td>
+            <td>${p.date}</td>
+            <td>
+                <button class="btn-icon" onclick="deleteItem('posts', '${p.id}')">🗑️</button>
+            </td>
+        </tr>`).join('');
 }
 
 async function loadUsers() {
     const res = await fetch(`${API_URL}/users`);
     const data = await res.json();
     document.getElementById('usersTable').innerHTML = data.map(u => `
-        <tr><td>${u.name}</td><td>${u.role}</td><td><span class="status-badge status-published">Active</span></td>
-        <td><button class="btn-icon" onclick="deleteItem('users', '${u.id}')">🗑️</button></td></tr>`).join('');
+        <tr>
+            <td>${u.name}</td>
+            <td>${u.role}</td>
+            <td><span class="status-badge status-published">Active</span></td>
+            <td><button class="btn-icon" onclick="deleteItem('users', '${u.id}')">🗑️</button></td>
+        </tr>`).join('');
 }
 
 async function loadDashboard() {
@@ -2491,20 +2550,33 @@ async function loadDashboard() {
         document.getElementById('totalPosts').textContent = posts.length;
         document.getElementById('totalMedia').textContent = media.length;
         document.getElementById('totalUsers').textContent = users.length;
+        
         const recent = [...pages, ...posts].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,5);
         document.getElementById('recentContentTable').innerHTML = recent.map(item => `
-            <tr><td>${item.title}</td><td>${item.type === 'posts' ? 'Post' : 'Page'}</td><td>${item.author}</td><td><span class="status-badge status-${item.status}">${item.status}</span></td><td>${item.date}</td></tr>`).join('');
+            <tr>
+                <td>${item.title}</td>
+                <td>${item.type === 'posts' ? 'Post' : 'Page'}</td>
+                <td>${item.author}</td>
+                <td><span class="status-badge status-${item.status}">${item.status}</span></td>
+                <td>${item.date}</td>
+            </tr>`).join('');
     } catch (e) {}
 }
 
 async function deleteItem(type, id) {
-    if(!confirm("Are you sure?")) return;
+    if(!confirm("Are you sure? This cannot be undone.")) return;
     const res = await fetch(`${API_URL}/${type}/${id}`, { method: 'DELETE' });
-    if(res.ok) { showToast("Deleted"); loadDashboard(); switchToPage(type); }
+    if(res.ok) { 
+        showToast("Deleted Successfully"); 
+        if(type === 'media') loadMedia();
+        else if(type === 'pages') loadPages();
+        else if(type === 'posts') loadPosts();
+        else if(type === 'users') loadUsers();
+        loadDashboard(); 
+    }
 }
 
 // --- MEDIA LOGIC ---
-
 function handleFileSelect(e) {
     selectedFile = e.target.files[0];
     if(selectedFile) {
@@ -2521,9 +2593,9 @@ async function loadMedia() {
     grid.innerHTML = allMediaData.map(m => {
         let thumbnailHTML = '';
         if (m.type === 'Image') {
-            thumbnailHTML = `<img src="${UPLOADS_URL + m.url}" style="width:100%;height:100%;object-fit:cover;">`;
+            thumbnailHTML = `<img src="${m.url}" style="width:100%;height:100%;object-fit:cover;">`;
         } else if (m.type === 'Video') {
-            thumbnailHTML = `<video muted style="width:100%;height:100%;object-fit:cover;"><source src="${UPLOADS_URL + m.url}"></video><div style="position:absolute;color:white;font-size:1.5rem">▶️</div>`;
+            thumbnailHTML = `<video muted style="width:100%;height:100%;object-fit:cover;"><source src="${m.url}"></video><div style="position:absolute;color:white;font-size:1.5rem">▶️</div>`;
         } else {
             thumbnailHTML = `<div style="font-size:3rem">📄</div>`;
         }
@@ -2534,10 +2606,10 @@ async function loadMedia() {
                     ${thumbnailHTML}
                 </div>
                 <div class="media-info">
-                    <div class="media-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name}</div>
-                    <div class="media-actions" style="display:flex;gap:5px;margin-top:10px;">
-                        <button class="btn-view" onclick="viewMedia('${m.id}')" title="View">👁️ View</button>
-                        <button class="btn-icon" onclick="openEditMedia('${m.id}')" style="background:var(--warning);color:white;" title="Edit">✏️</button>
+                    <div class="media-name" title="${m.name}">${m.name}</div>
+                    <div class="media-actions">
+                        <button class="btn-view" onclick="viewMedia('${m.id}')">👁️ View</button>
+                        <button class="btn-icon" onclick="openEditMedia('${m.id}')" style="background:var(--warning);color:white;">✏️</button>
                         <button class="btn-delete" onclick="deleteItem('media', '${m.id}')">🗑️</button>
                     </div>
                 </div>
@@ -2561,7 +2633,7 @@ async function openEditMedia(id) {
 
 function viewMedia(id) {
     const item = allMediaData.find(x => x.id === id);
-    if(item) window.open(UPLOADS_URL + item.url, '_blank');
+    if(item) window.open(item.url, '_blank');
 }
 
 document.getElementById('mediaForm').addEventListener('submit', async (e) => {
@@ -2578,11 +2650,11 @@ document.getElementById('mediaForm').addEventListener('submit', async (e) => {
                 body: JSON.stringify({ name, type })
             });
             if(res.ok) { 
-                showToast("Media Info Updated Successfully!"); 
+                showToast("Media Info Updated!"); 
                 closeModal('mediaModal'); 
                 loadMedia(); 
-            } else { showToast("Failed to update media", "error"); }
-        } catch(err) { showToast("Server Error", "error"); }
+            }
+        } catch(err) { showToast("Update failed", "error"); }
     } else {
         const fd = new FormData();
         fd.append('name', name);
@@ -2590,14 +2662,14 @@ document.getElementById('mediaForm').addEventListener('submit', async (e) => {
         if(selectedFile) fd.append('file', selectedFile);
         const res = await fetch(`${API_URL}/media/upload`, { method: 'POST', body: fd });
         if(res.ok) { 
-            showToast("Media Uploaded Successfully!"); 
+            showToast("Media Uploaded!"); 
             closeModal('mediaModal'); 
             loadMedia(); 
         }
     }
 });
 
-// --- DROPDOWN LOGIC (Consolidated) ---
+// --- UI EVENT LISTENERS ---
 const profileDropdown = document.getElementById('profileDropdown');
 const userProfileToggle = document.getElementById('userProfileToggle');
 
@@ -2608,32 +2680,16 @@ if (userProfileToggle) {
     });
 }
 
-// Close dropdown when clicking anywhere outside
 window.addEventListener('click', () => {
-    if (profileDropdown && profileDropdown.classList.contains('active')) {
-        profileDropdown.classList.remove('active');
-    }
+    if (profileDropdown) profileDropdown.classList.remove('active');
 });
 
-// Mobile menu toggle
 const menuToggle = document.getElementById('menuToggle');
 if(menuToggle) {
     menuToggle.addEventListener('click', () => {
         document.getElementById('sidebar').classList.add('mobile-active');
     });
 }
-
-// --- INITIALIZATION & GLOBALS ---
-window.onload = () => {
-    const saved = localStorage.getItem('cmsUser');
-    if(saved) {
-        currentUser = JSON.parse(saved);
-        document.getElementById('loginPage').style.display = 'none';
-        document.getElementById('dashboard').classList.add('active');
-        setupUI(); 
-        loadDashboard();
-    }
-};
 
 // Global assignment for HTML event handlers
 window.switchToPage = switchToPage;
@@ -2642,12 +2698,17 @@ window.logoutUser = () => {
     location.reload();
 };
 
-window.openNewPageModal = () => openModal('pageModal');
-window.openNewPostModal = () => openModal('postModal');
+window.openNewPageModal = () => {
+    if(document.getElementById('editPageId')) document.getElementById('editPageId').value = "";
+    openModal('pageModal');
+};
+window.openNewPostModal = () => {
+    if(document.getElementById('editPostId')) document.getElementById('editPostId').value = "";
+    openModal('postModal');
+};
 window.openMediaModal = () => openModal('mediaModal');
 window.openNewUserModal = () => openModal('userModal');
 
-// Sidebar menu clicks
 document.querySelectorAll('.menu-link').forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -2655,11 +2716,8 @@ document.querySelectorAll('.menu-link').forEach(link => {
     });
 });
 
-// Logout button (footer)
 const logoutBtn = document.getElementById('logoutBtn');
-if(logoutBtn) {
-    logoutBtn.addEventListener('click', window.logoutUser);
-}
+if(logoutBtn) logoutBtn.addEventListener('click', window.logoutUser);
 </script>
 </body>
 </html>
