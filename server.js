@@ -4,18 +4,19 @@ const multer = require('multer');
 const path = require('path');
 const cors = require('cors');
 const fs = require('fs');
+const cloudinary = require('cloudinary').v2; // Added Cloudinary
+const { CloudinaryStorage } = require('multer-storage-cloudinary'); // Added Cloudinary Storage
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 1. Folder structure check for uploads
+// 1. Folder structure check (Local ke liye rehne dete hain)
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) { 
     fs.mkdirSync(uploadDir, { recursive: true }); 
 }
 
 // ==================== DATABASE CONNECTION ====================
-// Aapka provided MongoDB URI
 const MONGO_URI = "mongodb+srv://theafzalhussain_db:afzal786@cluster0.6fv3ww8.mongodb.net/ContentFlow?retryWrites=true&w=majority&appName=Cluster0";
 
 mongoose.connect(MONGO_URI)
@@ -37,7 +38,7 @@ const ContentSchema = new mongoose.Schema({
     author: String,
     status: String, 
     category: String, 
-    type: String, // 'pages' or 'posts'
+    type: String, 
     date: { type: String, default: () => new Date().toISOString().split('T')[0] }
 });
 
@@ -54,18 +55,30 @@ const Page = mongoose.model('Page', ContentSchema);
 const Post = mongoose.model('Post', ContentSchema);
 const Media = mongoose.model('Media', MediaSchema);
 
+// ==================== CLOUDINARY CONFIGURATION ====================
+// Dashboard se copy ki hui details yahan hain
+cloudinary.config({
+    cloud_name: 'dtfvoxw1p',
+    api_key: '551368853328319',
+    api_secret: 'YAHA_APNA_API_SECRET_DAALEIN' // <--- Isse badalna mat bhulna
+});
+
+// Cloudinary Storage Setup
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'contentflow_pro',
+        resource_type: 'auto', // Isse Video aur PDF bhi upload ho jayenge
+    },
+});
+
+const upload = multer({ storage: storage });
+
 // ==================== MIDDLEWARES ====================
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 app.use('/uploads', express.static(uploadDir));
-
-// Multer Configuration for File Uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadDir),
-    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
-const upload = multer({ storage });
 
 // ==================== ROUTES ====================
 
@@ -104,7 +117,6 @@ app.get('/api/:type', async (req, res) => {
         else if (type === 'posts') data = await Post.find();
         else return res.status(404).json({ error: "Invalid type" });
 
-        // Mapping _id to id for frontend compatibility
         res.json(data.map(d => ({ ...d._doc, id: d._id })));
     } catch (e) { 
         res.status(500).json([]); 
@@ -169,26 +181,27 @@ app.post('/api/posts', async (req, res) => {
     }
 });
 
-// --- UPLOAD: Generic Media Upload ---
+// --- UPLOAD: Generic Media Upload (Updated for Cloudinary) ---
 app.post('/api/media/upload', upload.single('file'), async (req, res) => {
     try {
         const m = new Media({
             name: req.body.name || req.file.originalname,
             type: req.body.type,
             size: (req.file.size / 1024).toFixed(2) + " KB",
-            url: `/uploads/${req.file.filename}`
+            url: req.file.path // Cloudinary URL
         });
         await m.save();
         res.json(m);
     } catch (e) { 
-        res.status(500).json({ error: "Upload failed" }); 
+        console.error(e);
+        res.status(500).json({ error: "Cloudinary Upload failed" }); 
     }
 });
 
-// --- UPLOAD: User Profile Picture (Avatar) ---
+// --- UPLOAD: User Profile Picture (Updated for Cloudinary) ---
 app.post('/api/users/:id/avatar', upload.single('file'), async (req, res) => {
     try {
-        const url = `/uploads/${req.file.filename}`;
+        const url = req.file.path; // Cloudinary URL
         await User.findByIdAndUpdate(req.params.id, { profilePic: url });
         res.json({ success: true, url });
     } catch (e) { 
@@ -202,12 +215,8 @@ app.delete('/api/:type/:id', async (req, res) => {
         const { type, id } = req.params;
         if (type === 'users') await User.findByIdAndDelete(id);
         else if (type === 'media') {
-            const item = await Media.findById(id);
-            // Optional: Delete physical file from folder
-            if(item && item.url) {
-                const filePath = path.join(__dirname, 'public', item.url);
-                if(fs.existsSync(filePath)) fs.unlinkSync(filePath);
-            }
+            // Note: Cloudinary se file delete karne ke liye uska API use hota hai, 
+            // yahan sirf DB se delete ho raha hai.
             await Media.findByIdAndDelete(id);
         }
         else if (type === 'pages') await Page.findByIdAndDelete(id);
@@ -221,5 +230,5 @@ app.delete('/api/:type/:id', async (req, res) => {
 
 // Server Initialization
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });
