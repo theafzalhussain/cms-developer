@@ -4,9 +4,12 @@ const multer = require('multer');
 const path = require('path');
 const cors = require('cors');
 const fs = require('fs');
-const bcrypt = require('bcryptjs'); // Naya: Security ke liye
+const bcrypt = require('bcryptjs'); // Security ke liye
 const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const multerStorageCloudinary = require('multer-storage-cloudinary');
+
+// CloudinaryStorage constructor fix
+const CloudinaryStorage = multerStorageCloudinary.CloudinaryStorage || multerStorageCloudinary;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -81,13 +84,12 @@ app.use('/uploads', express.static(uploadDir));
 
 // ==================== ROUTES ====================
 
-// --- AUTH: Login (Updated with Bcrypt Security) ---
+// --- AUTH: Login (Bcrypt + Plain Fallback) ---
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     try {
         const user = await User.findOne({ username });
         if (user) {
-            // Password match check (Hashed aur Plain dono check karega puraane data ke liye)
             const isMatch = await bcrypt.compare(password, user.password);
             if (isMatch || user.password === password) {
                 return res.json({ 
@@ -125,7 +127,7 @@ app.get('/api/:type', async (req, res) => {
     }
 });
 
-// --- USER: Create New User (With Password Hashing) ---
+// --- USER: Create New User (Hashed Password) ---
 app.post('/api/users', async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -137,7 +139,7 @@ app.post('/api/users', async (req, res) => {
     }
 });
 
-// --- CONTENT: Edit/Update Route (Naya Feature) ---
+// --- CONTENT: Edit/Update Route ---
 app.put('/api/:type/:id', async (req, res) => {
     try {
         const { type, id } = req.params;
@@ -159,7 +161,7 @@ app.patch('/api/users/:id', async (req, res) => {
     }
 });
 
-// --- SECURITY: Update Username/Password (With Hashing) ---
+// --- SECURITY: Update Username/Password ---
 app.patch('/api/users/:id/security', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -196,6 +198,7 @@ app.post('/api/posts', async (req, res) => {
 // --- UPLOAD: Generic Media Upload ---
 app.post('/api/media/upload', upload.single('file'), async (req, res) => {
     try {
+        if (!req.file) return res.status(400).json({ error: "No file uploaded" });
         const m = new Media({
             name: req.body.name || req.file.originalname,
             type: req.body.type,
@@ -234,6 +237,8 @@ app.delete('/api/:type/:id', async (req, res) => {
         res.status(500).json({ error: "Delete failed" }); 
     }
 });
+
+app.get('/', (req, res) => res.send("🚀 ContentFlow API Live"));
 
 // Server Initialization
 app.listen(PORT, () => {
