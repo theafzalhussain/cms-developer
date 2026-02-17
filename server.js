@@ -4,13 +4,14 @@ const multer = require('multer');
 const path = require('path');
 const cors = require('cors');
 const fs = require('fs');
-const cloudinary = require('cloudinary').v2; // Added Cloudinary
-const { CloudinaryStorage } = require('multer-storage-cloudinary'); // Added Cloudinary Storage
+const bcrypt = require('bcryptjs'); // Naya: Security ke liye
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 1. Folder structure check (Local ke liye rehne dete hain)
+// 1. Folder structure check
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) { 
     fs.mkdirSync(uploadDir, { recursive: true }); 
@@ -56,19 +57,17 @@ const Post = mongoose.model('Post', ContentSchema);
 const Media = mongoose.model('Media', MediaSchema);
 
 // ==================== CLOUDINARY CONFIGURATION ====================
-// Dashboard se copy ki hui details yahan hain
 cloudinary.config({
     cloud_name: 'dtfvoxw1p',
     api_key: '551368853328319',
-    api_secret: '6WKoU9LzhQf4v5GCjLzK-ZBgnRw' // <--- Isse badalna mat bhulna
+    api_secret: '6WKoU9LzhQf4v5GCjLzK-ZBgnRw' 
 });
 
-// Cloudinary Storage Setup
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'contentflow_pro',
-        resource_type: 'auto', // Isse Video aur PDF bhi upload ho jayenge
+        resource_type: 'auto',
     },
 });
 
@@ -82,31 +81,34 @@ app.use('/uploads', express.static(uploadDir));
 
 // ==================== ROUTES ====================
 
-// --- AUTH: Login ---
+// --- AUTH: Login (Updated with Bcrypt Security) ---
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     try {
-        const user = await User.findOne({ username, password });
+        const user = await User.findOne({ username });
         if (user) {
-            res.json({ 
-                success: true, 
-                user: { 
-                    id: user._id, 
-                    name: user.name, 
-                    role: user.role, 
-                    profilePic: user.profilePic, 
-                    username: user.username 
-                } 
-            });
-        } else { 
-            res.status(401).json({ success: false, message: "Invalid credentials" }); 
+            // Password match check (Hashed aur Plain dono check karega puraane data ke liye)
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (isMatch || user.password === password) {
+                return res.json({ 
+                    success: true, 
+                    user: { 
+                        id: user._id, 
+                        name: user.name, 
+                        role: user.role, 
+                        profilePic: user.profilePic, 
+                        username: user.username 
+                    } 
+                });
+            }
         }
+        res.status(401).json({ success: false, message: "Invalid credentials" });
     } catch (e) { 
         res.status(500).json({ success: false, error: "Server error" }); 
     }
 });
 
-// --- FETCH DATA: Generic Fetch for all types ---
+// --- FETCH DATA: Generic Fetch ---
 app.get('/api/:type', async (req, res) => {
     try {
         let data;
@@ -123,6 +125,30 @@ app.get('/api/:type', async (req, res) => {
     }
 });
 
+// --- USER: Create New User (With Password Hashing) ---
+app.post('/api/users', async (req, res) => {
+    try {
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        const newUser = new User({ ...req.body, password: hashedPassword });
+        await newUser.save();
+        res.status(201).json({ success: true, user: newUser });
+    } catch (e) { 
+        res.status(500).json({ error: "User creation failed" }); 
+    }
+});
+
+// --- CONTENT: Edit/Update Route (Naya Feature) ---
+app.put('/api/:type/:id', async (req, res) => {
+    try {
+        const { type, id } = req.params;
+        const Model = (type === 'posts') ? Post : Page;
+        const updated = await Model.findByIdAndUpdate(id, req.body, { new: true });
+        res.json(updated);
+    } catch (e) { 
+        res.status(500).json({ error: "Update failed" }); 
+    }
+});
+
 // --- PROFILE: Update Name ---
 app.patch('/api/users/:id', async (req, res) => {
     try {
@@ -133,13 +159,13 @@ app.patch('/api/users/:id', async (req, res) => {
     }
 });
 
-// --- SECURITY: Update Username/Password ---
+// --- SECURITY: Update Username/Password (With Hashing) ---
 app.patch('/api/users/:id/security', async (req, res) => {
     try {
         const { username, password } = req.body;
         const updateData = {};
         if (username) updateData.username = username;
-        if (password) updateData.password = password;
+        if (password) updateData.password = await bcrypt.hash(password, 10);
         
         await User.findByIdAndUpdate(req.params.id, updateData);
         res.json({ success: true });
@@ -159,36 +185,22 @@ app.patch('/api/media/:id', async (req, res) => {
     }
 });
 
-// --- CONTENT: Create Page ---
+// --- CONTENT: Create Page/Post ---
 app.post('/api/pages', async (req, res) => {
-    try { 
-        const n = new Page(req.body); 
-        await n.save(); 
-        res.status(201).json(n); 
-    } catch (e) { 
-        res.status(500).send(); 
-    }
+    try { const n = new Page(req.body); await n.save(); res.status(201).json(n); } catch (e) { res.status(500).send(); }
 });
-
-// --- CONTENT: Create Post ---
 app.post('/api/posts', async (req, res) => {
-    try { 
-        const n = new Post(req.body); 
-        await n.save(); 
-        res.status(201).json(n); 
-    } catch (e) { 
-        res.status(500).send(); 
-    }
+    try { const n = new Post(req.body); await n.save(); res.status(201).json(n); } catch (e) { res.status(500).send(); }
 });
 
-// --- UPLOAD: Generic Media Upload (Updated for Cloudinary) ---
+// --- UPLOAD: Generic Media Upload ---
 app.post('/api/media/upload', upload.single('file'), async (req, res) => {
     try {
         const m = new Media({
             name: req.body.name || req.file.originalname,
             type: req.body.type,
             size: (req.file.size / 1024).toFixed(2) + " KB",
-            url: req.file.path // Cloudinary URL
+            url: req.file.path 
         });
         await m.save();
         res.json(m);
@@ -198,10 +210,10 @@ app.post('/api/media/upload', upload.single('file'), async (req, res) => {
     }
 });
 
-// --- UPLOAD: User Profile Picture (Updated for Cloudinary) ---
+// --- UPLOAD: User Profile Picture ---
 app.post('/api/users/:id/avatar', upload.single('file'), async (req, res) => {
     try {
-        const url = req.file.path; // Cloudinary URL
+        const url = req.file.path;
         await User.findByIdAndUpdate(req.params.id, { profilePic: url });
         res.json({ success: true, url });
     } catch (e) { 
@@ -214,14 +226,9 @@ app.delete('/api/:type/:id', async (req, res) => {
     try {
         const { type, id } = req.params;
         if (type === 'users') await User.findByIdAndDelete(id);
-        else if (type === 'media') {
-            // Note: Cloudinary se file delete karne ke liye uska API use hota hai, 
-            // yahan sirf DB se delete ho raha hai.
-            await Media.findByIdAndDelete(id);
-        }
+        else if (type === 'media') await Media.findByIdAndDelete(id);
         else if (type === 'pages') await Page.findByIdAndDelete(id);
         else if (type === 'posts') await Post.findByIdAndDelete(id);
-        
         res.json({ success: true });
     } catch (e) { 
         res.status(500).json({ error: "Delete failed" }); 
