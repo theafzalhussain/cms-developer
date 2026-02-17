@@ -1,0 +1,2665 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContentFlow CMS Pro - Enhanced Media Upload</title>
+    <!-- CSS is kept exactly as you provided -->
+    <style>
+        /* Including original styles from your document - keeping exact same */
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #14141f;
+    --bg-tertiary: #1e1e2e;
+    --accent-primary: #00d4ff;
+    --accent-secondary: #7c3aed;
+    --accent-gradient: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0b8;
+    --text-muted: #6b6b7f;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --border-color: #2a2a3e;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px rgba(0, 212, 255, 0.3);
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box
+}
+
+body {
+    font-family: 'Archivo', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.08) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+    animation: backgroundPulse 10s ease-in-out infinite
+}
+
+@keyframes backgroundPulse {
+
+    0%,
+    100% {
+        opacity: 1
+    }
+
+    50% {
+        opacity: 0.6
+    }
+}
+
+.particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0
+}
+
+.particle {
+    position: absolute;
+    background: var(--accent-primary);
+    border-radius: 50%;
+    opacity: 0.1;
+    animation: float 20s infinite
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0) translateX(0)
+    }
+
+    25% {
+        transform: translateY(-100px) translateX(50px)
+    }
+
+    50% {
+        transform: translateY(-50px) translateX(-50px)
+    }
+
+    75% {
+        transform: translateY(-150px) translateX(100px)
+    }
+}
+
+.container {
+    position: relative;
+    z-index: 1
+}
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative
+}
+
+.login-box {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 3rem;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: var(--shadow-lg);
+    animation: fadeInUp 0.6s ease;
+    position: relative;
+    overflow: hidden
+}
+
+.login-box::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, transparent, var(--accent-primary), transparent);
+    animation: rotate 4s linear infinite;
+    opacity: 0.1
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg)
+    }
+
+    100% {
+        transform: rotate(360deg)
+    }
+}
+
+.login-box>* {
+    position: relative;
+    z-index: 1
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2.5rem
+}
+
+.login-header h1 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+    animation: gradientShift 3s ease infinite
+}
+
+@keyframes gradientShift {
+
+    0%,
+    100% {
+        filter: hue-rotate(0deg)
+    }
+
+    50% {
+        filter: hue-rotate(20deg)
+    }
+}
+
+.login-header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    animation: slideIn 0.4s ease backwards
+}
+
+.form-group:nth-child(1) {
+    animation-delay: 0.1s
+}
+
+.form-group:nth-child(2) {
+    animation-delay: 0.2s
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0)
+    }
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: var(--transition-normal);
+    font-family: 'Archivo', sans-serif
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    transform: translateY(-2px)
+}
+
+.btn {
+    padding: 0.875rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    font-family: 'Archivo', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    position: relative;
+    overflow: hidden
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s
+}
+
+.btn:active::before {
+    width: 300px;
+    height: 300px
+}
+
+.btn-primary {
+    background: var(--accent-gradient);
+    color: var(--text-primary);
+    width: 100%;
+    box-shadow: var(--shadow-md)
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), var(--shadow-glow)
+}
+
+.demo-credentials {
+    margin-top: 2rem;
+    padding: 1.25rem;
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+    border-left: 3px solid var(--accent-primary);
+    animation: fadeInUp 0.6s ease 0.3s backwards
+}
+
+.demo-credentials h3 {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em
+}
+
+.demo-credentials p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    margin: 0.25rem 0
+}
+
+.dashboard {
+    display: none;
+    min-height: 100vh
+}
+
+.dashboard.active {
+    display: flex;
+    animation: fadeIn 0.4s ease
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0
+    }
+
+    to {
+        opacity: 1
+    }
+}
+
+.sidebar {
+    width: 280px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    padding: 2rem 0;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+    transition: var(--transition-normal)
+}
+
+.sidebar-brand {
+    padding: 0 2rem;
+    margin-bottom: 2.5rem
+}
+
+.sidebar-brand h2 {
+    font-size: 1.75rem;
+    font-weight: 900;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+    animation: pulse 2s ease-in-out infinite
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1)
+    }
+
+    50% {
+        transform: scale(1.05)
+    }
+}
+
+.sidebar-menu {
+    list-style: none
+}
+
+.menu-item {
+    margin: 0.25rem 0;
+    animation: slideInLeft 0.4s ease backwards
+}
+
+.menu-item:nth-child(1) {
+    animation-delay: 0.1s
+}
+
+.menu-item:nth-child(2) {
+    animation-delay: 0.15s
+}
+
+.menu-item:nth-child(3) {
+    animation-delay: 0.2s
+}
+
+.menu-item:nth-child(4) {
+    animation-delay: 0.25s
+}
+
+.menu-item:nth-child(5) {
+    animation-delay: 0.3s
+}
+
+.menu-item:nth-child(6) {
+    animation-delay: 0.35s
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0)
+    }
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.875rem 2rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: var(--transition-fast);
+    font-weight: 500;
+    position: relative
+}
+
+.menu-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: var(--accent-gradient);
+    transition: var(--transition-normal)
+}
+
+.menu-link:hover {
+    color: var(--text-primary);
+    background: rgba(0, 212, 255, 0.05);
+    padding-left: 2.5rem
+}
+
+.menu-link.active {
+    color: var(--text-primary);
+    background: rgba(0, 212, 255, 0.1)
+}
+
+.menu-link.active::before {
+    height: 100%
+}
+
+.menu-icon {
+    font-size: 1.25rem;
+    width: 24px;
+    text-align: center;
+    animation: bounce 1s ease infinite
+}
+
+.menu-link:hover .menu-icon {
+    animation: spin 0.5s ease
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0)
+    }
+
+    50% {
+        transform: translateY(-3px)
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg)
+    }
+
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+.sidebar-footer {
+    padding: 0 2rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color)
+}
+
+.main-content {
+    margin-left: 280px;
+    flex: 1;
+    min-height: 100vh;
+    transition: var(--transition-normal)
+}
+
+.topbar {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.25rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(10px)
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem
+}
+
+.topbar-left h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    animation: slideInRight 0.5s ease
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(-20px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0)
+    }
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    position: relative
+}
+
+.notification-icon:hover {
+    background: var(--accent-primary);
+    color: var(--bg-primary);
+    transform: scale(1.1)
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--danger);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    animation: ping 1s ease infinite
+}
+
+@keyframes ping {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8
+    }
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: fadeIn 0.5s ease 0.2s backwards
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    animation: rotate 3s linear infinite;
+    overflow: hidden;
+    border: 2px solid var(--border-color);
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 0.9rem
+}
+
+.user-role {
+    font-size: 0.75rem;
+    color: var(--text-secondary)
+}
+
+.content-area {
+    padding: 2rem
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem
+}
+
+.stat-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.75rem;
+    transition: var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+    animation: scaleIn 0.5s ease backwards
+}
+
+.stat-card:nth-child(1) {
+    animation-delay: 0.1s
+}
+
+.stat-card:nth-child(2) {
+    animation-delay: 0.2s
+}
+
+.stat-card:nth-child(3) {
+    animation-delay: 0.3s
+}
+
+.stat-card:nth-child(4) {
+    animation-delay: 0.4s
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9)
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1)
+    }
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--accent-gradient);
+    transform: scaleX(0);
+    transition: var(--transition-normal)
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+    transform: scale(0);
+    transition: var(--transition-slow)
+}
+
+.stat-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-lg), var(--shadow-glow)
+}
+
+.stat-card:hover::before {
+    transform: scaleX(1)
+}
+
+.stat-card:hover::after {
+    transform: scale(1)
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem
+}
+
+.stat-title {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background: rgba(0, 212, 255, 0.1);
+    transition: var(--transition-normal)
+}
+
+.stat-card:hover .stat-icon {
+    transform: rotate(360deg) scale(1.1)
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    line-height: 1;
+    animation: countUp 1s ease
+}
+
+@keyframes countUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+
+.stat-change {
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem
+}
+
+.stat-change.positive {
+    color: var(--success)
+}
+
+.content-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    animation: slideUp 0.6s ease backwards
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700
+}
+
+.btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color)
+}
+
+.btn-secondary:hover {
+    background: var(--accent-gradient);
+    border-color: transparent;
+    transform: translateY(-2px)
+}
+
+.content-table {
+    width: 100%;
+    border-collapse: collapse
+}
+
+.content-table thead {
+    border-bottom: 1px solid var(--border-color)
+}
+
+.content-table th {
+    padding: 1rem;
+    text-align: left;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em
+}
+
+.content-table td {
+    padding: 1.25rem 1rem;
+    border-bottom: 1px solid var(--border-color)
+}
+
+.content-table tbody tr {
+    transition: var(--transition-fast);
+    animation: fadeInRow 0.4s ease backwards
+}
+
+.content-table tbody tr:nth-child(1) {
+    animation-delay: 0.1s
+}
+
+.content-table tbody tr:nth-child(2) {
+    animation-delay: 0.2s
+}
+
+.content-table tbody tr:nth-child(3) {
+    animation-delay: 0.3s
+}
+
+.content-table tbody tr:nth-child(4) {
+    animation-delay: 0.4s
+}
+
+.content-table tbody tr:nth-child(5) {
+    animation-delay: 0.5s
+}
+
+@keyframes fadeInRow {
+    from {
+        opacity: 0;
+        transform: translateX(-20px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0)
+    }
+}
+
+.content-table tbody tr:hover {
+    background: rgba(0, 212, 255, 0.05);
+    transform: translateX(5px)
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.375rem 0.875rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    animation: fadeIn 0.5s ease
+}
+
+.status-published {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success)
+}
+
+.status-draft {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning)
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition-fast)
+}
+
+.btn-icon:hover {
+    background: var(--accent-primary);
+    color: var(--bg-primary);
+    border-color: var(--accent-primary);
+    transform: scale(1.1) rotate(5deg)
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+    backdrop-filter: blur(5px)
+}
+
+.modal.active {
+    display: flex
+}
+
+.modal-content {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 2.5rem;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalSlideUp 0.4s ease;
+    box-shadow: var(--shadow-lg), var(--shadow-glow)
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1)
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem
+}
+
+.modal-title {
+    font-size: 1.75rem;
+    font-weight: 700
+}
+
+.close-modal {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    transition: var(--transition-fast)
+}
+
+.close-modal:hover {
+    background: var(--danger);
+    color: var(--text-primary);
+    border-color: var(--danger);
+    transform: rotate(90deg)
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem
+}
+
+.btn-success {
+    background: var(--success);
+    color: var(--text-primary)
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md)
+}
+
+textarea.form-control {
+    min-height: 150px;
+    resize: vertical;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem
+}
+
+.alert {
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: slideDown 0.4s ease
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+
+.alert-success {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid var(--success);
+    color: var(--success)
+}
+
+.alert-error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid var(--danger);
+    color: var(--danger)
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem
+}
+
+.quick-action-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    position: relative;
+    overflow: hidden
+}
+
+.quick-action-card::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s
+}
+
+.quick-action-card:hover::before {
+    width: 300px;
+    height: 300px
+}
+
+.quick-action-card:hover {
+    transform: translateY(-8px) scale(1.05);
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-md), var(--shadow-glow)
+}
+
+.quick-action-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    animation: bounce 2s ease infinite
+}
+
+.quick-action-title {
+    font-weight: 600;
+    color: var(--text-primary)
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 1rem 0
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--accent-gradient);
+    transition: width 0.5s ease;
+    animation: shimmer 2s infinite
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%)
+    }
+
+    100% {
+        transform: translateX(100%)
+    }
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem
+}
+
+.chart-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.75rem;
+    animation: scaleIn 0.5s ease backwards
+}
+
+.chart-header {
+    margin-bottom: 1.5rem
+}
+
+.chart-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary)
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem
+}
+
+.analytics-item {
+    background: var(--bg-tertiary);
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    transition: var(--transition-normal)
+}
+
+.analytics-item:hover {
+    border-color: var(--accent-primary);
+    transform: translateY(-3px)
+}
+
+.analytics-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem
+}
+
+.analytics-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary)
+}
+
+.activity-timeline {
+    padding: 1rem 0
+}
+
+.timeline-item {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    animation: fadeInRow 0.5s ease backwards
+}
+
+.timeline-dot {
+    width: 12px;
+    height: 12px;
+    background: var(--accent-primary);
+    border-radius: 50%;
+    margin-top: 0.5rem;
+    flex-shrink: 0;
+    animation: pulse 2s ease infinite
+}
+
+.timeline-content {
+    flex: 1
+}
+
+.timeline-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem
+}
+
+.timeline-desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary)
+}
+
+.timeline-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem
+}
+
+.search-bar {
+    position: relative;
+    max-width: 400px
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: var(--transition-normal)
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1)
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary)
+}
+
+.loading {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary)
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 1rem;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--accent-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+/* ==================== ENHANCED MEDIA STYLES ==================== */
+.file-upload-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    background: var(--bg-tertiary);
+    transition: var(--transition-normal);
+    cursor: pointer;
+    margin-bottom: 2rem
+}
+
+.file-upload-zone:hover {
+    border-color: var(--accent-primary);
+    background: rgba(0, 212, 255, 0.05)
+}
+
+.file-upload-zone.dragover {
+    border-color: var(--accent-primary);
+    background: rgba(0, 212, 255, 0.1);
+    transform: scale(1.02)
+}
+
+.upload-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5
+}
+
+.upload-text {
+    color: var(--text-secondary);
+    margin-bottom: 1rem
+}
+
+.file-input-hidden {
+    display: none
+}
+
+.media-type-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color)
+}
+
+.media-type-tab {
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 600;
+    border-bottom: 2px solid transparent;
+    transition: var(--transition-fast)
+}
+
+.media-type-tab:hover {
+    color: var(--text-primary)
+}
+
+.media-type-tab.active {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary)
+}
+
+.media-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: var(--transition-normal);
+    position: relative
+}
+
+.media-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg), var(--shadow-glow)
+}
+
+.media-thumbnail {
+    width: 100%;
+    height: 200px;
+    background: var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    position: relative;
+    overflow: hidden
+}
+
+.media-thumbnail img,
+.media-thumbnail video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover
+}
+
+.media-info {
+    padding: 1.25rem
+}
+
+.media-name {
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 1rem
+}
+
+.media-meta {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem
+}
+
+.media-description {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 1rem
+}
+
+.media-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between
+}
+
+.btn-view {
+    background: var(--accent-gradient);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition-fast);
+    flex: 1
+}
+
+.btn-view:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md)
+}
+
+.btn-delete {
+    background: var(--danger);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition-fast)
+}
+
+.btn-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md)
+}
+
+.preview-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease
+}
+
+.preview-modal.active {
+    display: flex
+}
+
+.preview-content {
+    max-width: 90%;
+    max-height: 90%;
+    position: relative
+}
+
+.preview-content img,
+.preview-content video {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 12px
+}
+
+.preview-content iframe {
+    width: 80vw;
+    height: 90vh;
+    border: none;
+    border-radius: 12px;
+    background: white
+}
+
+.preview-close {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast)
+}
+
+.preview-close:hover {
+    transform: rotate(90deg) scale(1.1)
+}
+
+.file-preview {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+    border: 1px solid var(--border-color)
+}
+
+.preview-image,
+.preview-video {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    margin-top: 1rem
+}
+
+.preview-file-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem
+}
+
+.preview-file-icon {
+    font-size: 3rem
+}
+
+.preview-file-details {
+    flex: 1
+}
+
+.preview-file-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem
+}
+
+.preview-file-size {
+    color: var(--text-secondary);
+    font-size: 0.875rem
+}
+
+/* Settings Responsive Grid */
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    animation: slideUp 0.6s ease;
+}
+
+@media (max-width: 768px) {
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.profile-pic-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--accent-primary);
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-glow);
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary)
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary)
+}
+
+@media(max-width:1024px) {
+    .sidebar {
+        transform: translateX(-100%)
+    }
+
+    .sidebar.mobile-active {
+        transform: translateX(0)
+    }
+
+    .main-content {
+        margin-left: 0
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr)
+    }
+}
+
+@media(max-width:768px) {
+    .login-box {
+        padding: 2rem
+    }
+
+    .topbar {
+        padding: 1rem
+    }
+
+    .content-area {
+        padding: 1rem
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr
+    }
+
+    .content-section {
+        padding: 1.25rem
+    }
+
+    .content-table {
+        font-size: 0.875rem
+    }
+
+    .content-table th,
+    .content-table td {
+        padding: 0.75rem 0.5rem
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+        width: 95%
+    }
+
+    .form-row {
+        grid-template-columns: 1fr
+    }
+
+    .topbar-left h1 {
+        font-size: 1.25rem
+    }
+
+    .user-details {
+        display: none
+    }
+}
+
+@media(max-width:480px) {
+    .section-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start
+    }
+
+    .action-buttons {
+        flex-wrap: wrap
+    }
+}
+
+.menu-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem
+}
+
+@media(max-width:1024px) {
+    .menu-toggle {
+        display: flex
+    }
+}
+
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: slideInRight 0.4s ease;
+    z-index: 2000
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0)
+    }
+}
+
+.toast.success {
+    border-left: 3px solid var(--success)
+}
+
+.toast.error {
+    border-left: 3px solid var(--danger)
+}
+
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    min-height: 50px
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    background: var(--accent-gradient);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    animation: scaleIn 0.3s ease
+}
+
+.tag-remove {
+    cursor: pointer;
+    font-weight: 700
+}
+
+.tag-remove:hover {
+    transform: scale(1.2)
+}
+/* Profile Dropdown Styling */
+.profile-dropdown {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    width: 180px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    display: none;
+    z-index: 2000;
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+}
+
+.profile-dropdown.active {
+    display: block;
+}
+
+.profile-dropdown ul {
+    list-style: none;
+    padding: 8px 0;
+}
+
+.profile-dropdown ul li {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: var(--transition-fast);
+}
+
+.profile-dropdown ul li:hover {
+    background: var(--bg-tertiary);
+    color: var(--accent-primary);
+}
+
+/* Hover effects for Media actions */
+.media-actions button:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <!-- LOGIN PAGE -->
+    <div id="loginPage" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>ContentFlow</h1>
+                <p>Advanced Enterprise Content Management System</p>
+            </div>
+            <div id="loginAlert"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" class="form-control" placeholder="Enter username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <span>🚀</span> Sign In
+                </button>
+            </form>
+            <div class="demo-credentials">
+                <h3>Demo Credentials</h3>
+                <p><strong>Admin:</strong> admin / admin123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="dashboard">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <h2>ContentFlow</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="menu-item"><a href="#" class="menu-link active" data-page="dashboard"><span
+                            class="menu-icon">📊</span><span>Dashboard</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-page="analytics"><span
+                            class="menu-icon">📈</span><span>Analytics</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-page="pages"><span
+                            class="menu-icon">📄</span><span>Pages</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-page="posts"><span
+                            class="menu-icon">📝</span><span>Posts</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-page="media"><span
+                            class="menu-icon">🖼️</span><span>Media Library</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-page="users" id="usersMenuItem"><span
+                            class="menu-icon">👥</span><span>Users</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-page="settings"><span
+                            class="menu-icon">⚙️</span><span>Settings</span></a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <button class="btn btn-secondary" id="logoutBtn" style="width:100%"><span>🚪</span> Logout</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <h1 id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="topbar-right">
+                    <div class="notification-icon">🔔<span class="notification-badge">3</span></div>
+                  <div class="topbar-right">
+    <!-- <div class="notification-icon">🔔<span class="notification-badge">3</span></div> -->
+    
+    <!-- Profile Section with Dropdown -->
+    <div class="user-info" id="userProfileToggle" style="position: relative; cursor: pointer;">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <div class="user-details">
+            <div class="user-name" id="userName">Admin User</div>
+            <div class="user-role" id="userRole">Administrator</div>
+        </div>
+
+        <!-- NEW: Profile Dropdown Menu -->
+        <div class="profile-dropdown" id="profileDropdown">
+            <ul>
+                <li onclick="switchToPage('settings')"><span>⚙️</span> Settings</li>
+                <li onclick="logoutUser()" style="color: var(--danger);"><span>🚪</span> Logout</li>
+            </ul>
+        </div>
+    </div>
+</div>
+                </div>
+            </div>
+
+            <div class="content-area" id="contentArea">
+                <!-- Dashboard View -->
+                <div id="dashboardView">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header"><span class="stat-title">Total Pages</span>
+                                <div class="stat-icon">📄</div>
+                            </div>
+                            <div class="stat-value" id="totalPages">0</div>
+                            <div class="stat-change positive"><span>↗</span> +12% from last month</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header"><span class="stat-title">Total Posts</span>
+                                <div class="stat-icon">📝</div>
+                            </div>
+                            <div class="stat-value" id="totalPosts">0</div>
+                            <div class="stat-change positive"><span>↗</span> +8% from last month</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header"><span class="stat-title">Media Files</span>
+                                <div class="stat-icon">🖼️</div>
+                            </div>
+                            <div class="stat-value" id="totalMedia">0</div>
+                            <div class="stat-change positive"><span>↗</span> +23% from last month</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header"><span class="stat-title">Active Users</span>
+                                <div class="stat-icon">👥</div>
+                            </div>
+                            <div class="stat-value" id="totalUsers">0</div>
+                            <div class="stat-change positive"><span>↗</span> +5% from last month</div>
+                        </div>
+                    </div>
+                    <div class="quick-actions">
+                        <div class="quick-action-card" onclick="openNewPageModal()">
+                            <div class="quick-action-icon">➕</div>
+                            <div class="quick-action-title">New Page</div>
+                        </div>
+                        <div class="quick-action-card" onclick="openNewPostModal()">
+                            <div class="quick-action-icon">✍️</div>
+                            <div class="quick-action-title">New Post</div>
+                        </div>
+                        <div class="quick-action-card" onclick="openMediaModal()">
+                            <div class="quick-action-icon">📤</div>
+                            <div class="quick-action-title">Upload Media</div>
+                        </div>
+                        <div class="quick-action-card" onclick="switchToPage('analytics')">
+                            <div class="quick-action-icon">📊</div>
+                            <div class="quick-action-title">View Analytics</div>
+                        </div>
+                    </div>
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Recent Content</h2>
+                        </div>
+                        <table class="content-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Type</th>
+                                    <th>Author</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentContentTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Analytics View -->
+                <div id="analyticsView" style="display:none">
+                    <div class="content-section">
+                        <h2 class="section-title">Analytics Overview</h2>
+                        <div class="analytics-grid">
+                            <div class="analytics-item">
+                                <div class="analytics-label">Total Views</div>
+                                <div class="analytics-value">45,678</div>
+                            </div>
+                            <div class="analytics-item">
+                                <div class="analytics-label">Unique Visitors</div>
+                                <div class="analytics-value">12,345</div>
+                            </div>
+                            <div class="analytics-item">
+                                <div class="analytics-label">Bounce Rate</div>
+                                <div class="analytics-value">32.5%</div>
+                            </div>
+                            <div class="analytics-item">
+                                <div class="analytics-label">Avg. Time</div>
+                                <div class="analytics-value">4m 23s</div>
+                            </div>
+                        </div>
+                        <div class="progress-bar" style="margin-top:2rem">
+                            <div class="progress-fill" style="width:75%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pages View -->
+                <div id="pagesView" style="display:none">
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2 class="section-title">All Pages</h2>
+                            <button class="btn btn-primary" onclick="openNewPageModal()"><span>➕</span> New Page</button>
+                        </div>
+                        <table class="content-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pagesTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Posts View -->
+                <div id="postsView" style="display:none">
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2 class="section-title">All Posts</h2>
+                            <button class="btn btn-primary" onclick="openNewPostModal()"><span>➕</span> New Post</button>
+                        </div>
+                        <table class="content-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="postsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- MEDIA VIEW -->
+                <div id="mediaView" style="display:none">
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Media Library</h2>
+                            <button class="btn btn-primary" onclick="openMediaModal()"><span>📤</span> Upload Media</button>
+                        </div>
+                        <div id="mediaGrid" class="stats-grid"></div>
+                    </div>
+                </div>
+
+                <!-- Users View -->
+                <div id="usersView" style="display:none">
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2 class="section-title">User Management</h2>
+                            <button class="btn btn-primary" onclick="openNewUserModal()"><span>➕</span> Add User</button>
+                        </div>
+                        <table class="content-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SETTINGS VIEW (Now Integrated) -->
+                <div id="settingsView" style="display:none">
+                    <div class="settings-grid">
+                        
+                        <!-- Profile Settings -->
+                        <div class="content-section">
+                            <h2 class="section-title" style="margin-bottom: 2rem;">👤 Profile Identity</h2>
+                            <div class="profile-upload-area" style="text-align: center; margin-bottom: 2rem;">
+                                <div class="profile-img-wrapper" style="position: relative; width: 130px; height: 130px; margin: 0 auto 1.5rem;">
+                                    <img src="https://via.placeholder.com/130" id="settingProfilePreview" class="profile-pic-preview">
+                                    <label for="profilePicInput" style="position: absolute; bottom: 5px; right: 5px; background: var(--accent-gradient); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid var(--bg-secondary);">
+                                        <span style="font-size: 1.2rem;">📷</span>
+                                    </label>
+                                    <input type="file" id="profilePicInput" style="display:none" accept="image/*" onchange="uploadProfilePic(event)">
+                                </div>
+                            </div>
+
+                            <form id="profileSettingsForm">
+                                <div class="form-group">
+                                    <label>Display Name</label>
+                                    <input type="text" id="settingFullName" class="form-control" placeholder="Your full name" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">Save Full Name</button>
+                            </form>
+                        </div>
+
+                        <!-- Account Security -->
+                        <div class="content-section">
+                            <h2 class="section-title" style="margin-bottom: 2rem;">🔒 Account Security</h2>
+                            <form id="securitySettingsForm">
+                                <div class="form-group">
+                                    <label>Username</label>
+                                    <input type="text" id="settingUsername" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>New Password</label>
+                                    <input type="password" id="settingPassword" class="form-control" placeholder="••••••••">
+                                    <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 0.5rem;">Leave empty to keep current password</small>
+                                </div>
+                                <div style="margin-top: 2.5rem;">
+                                    <button type="submit" class="btn btn-primary" style="width: 100%; background: var(--bg-tertiary); border: 1px solid var(--accent-primary);">Update Credentials</button>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODALS -->
+    <!-- Page Modal -->
+    <div id="pageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">New Page</h2>
+                <button class="close-modal" onclick="closeModal('pageModal')">✕</button>
+            </div>
+            <form id="pageForm">
+                <div class="form-group"><label>Title</label><input type="text" id="pageTitleInput" class="form-control" required></div>
+                <div class="form-group"><label>Content</label><textarea id="pageContent" class="form-control" required></textarea></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Status</label><select id="pageStatus" class="form-control"><option value="published">Published</option><option value="draft">Draft</option></select></div>
+                </div>
+                <div class="form-actions"><button type="submit" class="btn btn-success">Save</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Post Modal -->
+    <div id="postModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">New Post</h2>
+                <button class="close-modal" onclick="closeModal('postModal')">✕</button>
+            </div>
+            <form id="postForm">
+                <div class="form-group"><label>Title</label><input type="text" id="postTitle" class="form-control" required></div>
+                <div class="form-group"><label>Content</label><textarea id="postContent" class="form-control" required></textarea></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Category</label><input type="text" id="postCategory" class="form-control"></div>
+                    <div class="form-group"><label>Status</label><select id="postStatus" class="form-control"><option value="published">Published</option><option value="draft">Draft</option></select></div>
+                </div>
+                <div class="form-actions"><button type="submit" class="btn btn-success">Save</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Media Modal -->
+    <div id="mediaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="mediaModalTitle">Upload Media</h2>
+                <button class="close-modal" onclick="closeModal('mediaModal')">✕</button>
+            </div>
+            <form id="mediaForm">
+                <input type="hidden" id="editMediaId">
+                <div class="form-group">
+                    <label>Media Type</label>
+                    <select id="mediaType" class="form-control">
+                        <option value="Image">Image</option>
+                        <option value="Video">Video</option>
+                        <option value="Document">Document</option>
+                    </select>
+                </div>
+                <div id="fileUploadContainer">
+                    <div class="file-upload-zone" onclick="document.getElementById('mediaFileInput').click()">
+                        <div class="upload-icon">📤</div>
+                        <div class="upload-text">Click to browse file</div>
+                    </div>
+                    <input type="file" id="mediaFileInput" class="file-input-hidden" onchange="handleFileSelect(event)">
+                </div>
+                <div id="filePreview" class="file-preview" style="display:none"></div>
+                <div class="form-group"><label>Name</label><input type="text" id="mediaName" class="form-control"></div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success" id="uploadButton" disabled>Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add User</h2>
+                <button class="close-modal" onclick="closeModal('userModal')">✕</button>
+            </div>
+            <form id="userForm">
+                <div class="form-group"><label>Name</label><input type="text" id="newUserName" class="form-control" required></div>
+                <div class="form-group"><label>Username</label><input type="text" id="newUserUsername" class="form-control" required></div>
+                <div class="form-group"><label>Password</label><input type="password" id="newUserPassword" class="form-control" required></div>
+                <div class="form-group"><label>Role</label><select id="newUserRole" class="form-control"><option value="Editor">Editor</option><option value="Author">Author</option></select></div>
+                <div class="form-actions"><button type="submit" class="btn btn-success">Add</button></div>
+            </form>
+        </div>
+    </div>
+<script>
+// Configuration
+const API_URL = "http://localhost:3000/api";
+const UPLOADS_URL = "http://localhost:3000";
+let currentUser = null;
+let selectedFile = null;
+let allMediaData = [];
+
+// --- UI CORE FUNCTIONS ---
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+
+function closeModal(id) { 
+    document.getElementById(id).classList.remove('active'); 
+    if(id === 'mediaModal') {
+        document.getElementById('mediaForm').reset();
+        // Modal ko wapas "Upload" mode par set karna
+        document.getElementById('editMediaId').value = "";
+        document.getElementById('mediaModalTitle').textContent = "Upload Media";
+        document.getElementById('fileUploadContainer').style.display = 'block';
+        document.getElementById('uploadButton').textContent = "Upload";
+        selectedFile = null;
+    }
+}
+
+function showToast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.innerHTML = `<span>${type === 'success' ? '✅' : '❌'}</span> ${msg}`;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 3000);
+}
+
+// --- NAVIGATION ---
+async function switchToPage(page) {
+    // Side effect: Close profile dropdown when switching page
+    if (profileDropdown) profileDropdown.classList.remove('active');
+
+    document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
+    const activeLink = document.querySelector(`[data-page="${page}"]`);
+    if(activeLink) activeLink.classList.add('active');
+    
+    ['dashboard', 'analytics', 'pages', 'posts', 'media', 'users', 'settings'].forEach(v => {
+        const el = document.getElementById(`${v}View`);
+        if (el) el.style.display = (v === page) ? 'block' : 'none';
+    });
+
+    document.getElementById('pageTitle').textContent = page.charAt(0).toUpperCase() + page.slice(1);
+    
+    // Close sidebar on mobile after clicking
+    const sidebar = document.getElementById('sidebar');
+    if(sidebar) sidebar.classList.remove('mobile-active');
+
+    if (page === 'dashboard') loadDashboard();
+    if (page === 'media') loadMedia();
+    if (page === 'pages') loadPages();
+    if (page === 'posts') loadPosts();
+    if (page === 'users') loadUsers();
+    if (page === 'settings') loadSettings();
+}
+
+// --- AUTH ---
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const usernameInput = document.getElementById('username').value;
+    const passwordInput = document.getElementById('password').value;
+    try {
+        const res = await fetch(`${API_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: usernameInput, password: passwordInput })
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentUser = data.user;
+            localStorage.setItem('cmsUser', JSON.stringify(currentUser));
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+            setupUI();
+            loadDashboard();
+        } else { showToast("Invalid Credentials", "error"); }
+    } catch (err) { showToast("Server Error", "error"); }
+});
+
+function setupUI() {
+    if(!currentUser) return;
+    document.getElementById('userName').textContent = currentUser.name;
+    document.getElementById('userRole').textContent = currentUser.role;
+    const avatar = document.getElementById('userAvatar');
+    if(currentUser.profilePic) avatar.innerHTML = `<img src="${UPLOADS_URL + currentUser.profilePic}" style="width:100%;height:100%;border-radius:50%">`;
+    else avatar.textContent = currentUser.name.charAt(0);
+}
+
+// --- SETTINGS LOGIC ---
+function loadSettings() {
+    if(!currentUser) return;
+    document.getElementById('settingFullName').value = currentUser.name || "";
+    document.getElementById('settingUsername').value = currentUser.username || "";
+    const preview = document.getElementById('settingProfilePreview');
+    if(preview) {
+        const fallback = "https://placehold.co/130x130/1e1e2e/ffffff?text=User";
+        preview.src = currentUser.profilePic ? UPLOADS_URL + currentUser.profilePic : fallback;
+        preview.onerror = function() { this.src = fallback; };
+    }
+}
+
+document.getElementById('profileSettingsForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const newName = document.getElementById('settingFullName').value;
+    try {
+        const res = await fetch(`${API_URL}/users/${currentUser.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: newName })
+        });
+        if(res.ok) {
+            currentUser.name = newName;
+            localStorage.setItem('cmsUser', JSON.stringify(currentUser));
+            setupUI();
+            showToast("Profile Name Updated!");
+        }
+    } catch (err) { showToast("Update failed", "error"); }
+});
+
+document.getElementById('securitySettingsForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('settingUsername').value;
+    const password = document.getElementById('settingPassword').value;
+    try {
+        const res = await fetch(`${API_URL}/users/${currentUser.id}/security`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        if(res.ok) {
+            currentUser.username = username;
+            localStorage.setItem('cmsUser', JSON.stringify(currentUser));
+            showToast("Security Details Updated!");
+            document.getElementById('settingPassword').value = "";
+        }
+    } catch (err) { showToast("Security update failed", "error"); }
+});
+
+async function uploadProfilePic(e) {
+    const file = e.target.files[0];
+    if(!file) return;
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+        const res = await fetch(`${API_URL}/users/${currentUser.id}/avatar`, { method: 'POST', body: fd });
+        const data = await res.json();
+        if(data.url) {
+            currentUser.profilePic = data.url;
+            localStorage.setItem('cmsUser', JSON.stringify(currentUser));
+            setupUI();
+            document.getElementById('settingProfilePreview').src = UPLOADS_URL + data.url;
+            showToast("Profile Picture Updated!");
+        }
+    } catch (err) { showToast("Avatar upload failed", "error"); }
+}
+
+// --- FORM SUBMISSIONS ---
+document.getElementById('pageForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = {
+        title: document.getElementById('pageTitleInput').value,
+        content: document.getElementById('pageContent').value,
+        status: document.getElementById('pageStatus').value,
+        author: currentUser.name,
+        type: 'pages'
+    };
+    const res = await fetch(`${API_URL}/pages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+    if(res.ok) { showToast("Page saved to Database!"); closeModal('pageModal'); loadPages(); loadDashboard(); }
+});
+
+document.getElementById('postForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = {
+        title: document.getElementById('postTitle').value,
+        content: document.getElementById('postContent').value,
+        category: document.getElementById('postCategory').value,
+        status: document.getElementById('postStatus').value,
+        author: currentUser.name,
+        type: 'posts'
+    };
+    const res = await fetch(`${API_URL}/posts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+    if(res.ok) { showToast("Post saved to Database!"); closeModal('postModal'); loadPosts(); loadDashboard(); }
+});
+
+// --- DATA LOADERS ---
+async function loadPages() {
+    const res = await fetch(`${API_URL}/pages`);
+    const data = await res.json();
+    document.getElementById('pagesTable').innerHTML = data.map(p => `
+        <tr><td>${p.title}</td><td>${p.author}</td><td><span class="status-badge status-${p.status}">${p.status}</span></td><td>${p.date}</td>
+        <td><button class="btn-icon" onclick="deleteItem('pages', '${p.id}')">🗑️</button></td></tr>`).join('');
+}
+
+async function loadPosts() {
+    const res = await fetch(`${API_URL}/posts`);
+    const data = await res.json();
+    document.getElementById('postsTable').innerHTML = data.map(p => `
+        <tr><td>${p.title}</td><td>${p.author}</td><td>${p.category}</td><td><span class="status-badge status-${p.status}">${p.status}</span></td><td>${p.date}</td>
+        <td><button class="btn-icon" onclick="deleteItem('posts', '${p.id}')">🗑️</button></td></tr>`).join('');
+}
+
+async function loadUsers() {
+    const res = await fetch(`${API_URL}/users`);
+    const data = await res.json();
+    document.getElementById('usersTable').innerHTML = data.map(u => `
+        <tr><td>${u.name}</td><td>${u.role}</td><td><span class="status-badge status-published">Active</span></td>
+        <td><button class="btn-icon" onclick="deleteItem('users', '${u.id}')">🗑️</button></td></tr>`).join('');
+}
+
+async function loadDashboard() {
+    try {
+        const [pages, posts, media, users] = await Promise.all([
+            fetch(`${API_URL}/pages`).then(r => r.json()),
+            fetch(`${API_URL}/posts`).then(r => r.json()),
+            fetch(`${API_URL}/media`).then(r => r.json()),
+            fetch(`${API_URL}/users`).then(r => r.json())
+        ]);
+        document.getElementById('totalPages').textContent = pages.length;
+        document.getElementById('totalPosts').textContent = posts.length;
+        document.getElementById('totalMedia').textContent = media.length;
+        document.getElementById('totalUsers').textContent = users.length;
+        const recent = [...pages, ...posts].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,5);
+        document.getElementById('recentContentTable').innerHTML = recent.map(item => `
+            <tr><td>${item.title}</td><td>${item.type === 'posts' ? 'Post' : 'Page'}</td><td>${item.author}</td><td><span class="status-badge status-${item.status}">${item.status}</span></td><td>${item.date}</td></tr>`).join('');
+    } catch (e) {}
+}
+
+async function deleteItem(type, id) {
+    if(!confirm("Are you sure?")) return;
+    const res = await fetch(`${API_URL}/${type}/${id}`, { method: 'DELETE' });
+    if(res.ok) { showToast("Deleted"); loadDashboard(); switchToPage(type); }
+}
+
+// --- MEDIA LOGIC ---
+
+function handleFileSelect(e) {
+    selectedFile = e.target.files[0];
+    if(selectedFile) {
+        document.getElementById('mediaName').value = selectedFile.name;
+        document.getElementById('uploadButton').disabled = false;
+    }
+}
+
+async function loadMedia() {
+    const res = await fetch(`${API_URL}/media`);
+    allMediaData = await res.json();
+    const grid = document.getElementById('mediaGrid');
+    
+    grid.innerHTML = allMediaData.map(m => {
+        let thumbnailHTML = '';
+        if (m.type === 'Image') {
+            thumbnailHTML = `<img src="${UPLOADS_URL + m.url}" style="width:100%;height:100%;object-fit:cover;">`;
+        } else if (m.type === 'Video') {
+            thumbnailHTML = `<video muted style="width:100%;height:100%;object-fit:cover;"><source src="${UPLOADS_URL + m.url}"></video><div style="position:absolute;color:white;font-size:1.5rem">▶️</div>`;
+        } else {
+            thumbnailHTML = `<div style="font-size:3rem">📄</div>`;
+        }
+
+        return `
+            <div class="media-card">
+                <div class="media-thumbnail" style="position:relative;display:flex;align-items:center;justify-content:center;height:200px;background:var(--bg-tertiary);overflow:hidden;">
+                    ${thumbnailHTML}
+                </div>
+                <div class="media-info">
+                    <div class="media-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name}</div>
+                    <div class="media-actions" style="display:flex;gap:5px;margin-top:10px;">
+                        <button class="btn-view" onclick="viewMedia('${m.id}')" title="View">👁️ View</button>
+                        <button class="btn-icon" onclick="openEditMedia('${m.id}')" style="background:var(--warning);color:white;" title="Edit">✏️</button>
+                        <button class="btn-delete" onclick="deleteItem('media', '${m.id}')">🗑️</button>
+                    </div>
+                </div>
+            </div>`;
+    }).join('');
+}
+
+async function openEditMedia(id) {
+    const item = allMediaData.find(x => x.id === id);
+    if(item) {
+        document.getElementById('editMediaId').value = item.id;
+        document.getElementById('mediaName').value = item.name;
+        document.getElementById('mediaType').value = item.type;
+        document.getElementById('mediaModalTitle').textContent = "Edit Media Info";
+        document.getElementById('fileUploadContainer').style.display = 'none';
+        document.getElementById('uploadButton').textContent = "Update";
+        document.getElementById('uploadButton').disabled = false;
+        openModal('mediaModal');
+    }
+}
+
+function viewMedia(id) {
+    const item = allMediaData.find(x => x.id === id);
+    if(item) window.open(UPLOADS_URL + item.url, '_blank');
+}
+
+document.getElementById('mediaForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('editMediaId').value;
+    const name = document.getElementById('mediaName').value;
+    const type = document.getElementById('mediaType').value;
+    
+    if(id) {
+        try {
+            const res = await fetch(`${API_URL}/media/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, type })
+            });
+            if(res.ok) { 
+                showToast("Media Info Updated Successfully!"); 
+                closeModal('mediaModal'); 
+                loadMedia(); 
+            } else { showToast("Failed to update media", "error"); }
+        } catch(err) { showToast("Server Error", "error"); }
+    } else {
+        const fd = new FormData();
+        fd.append('name', name);
+        fd.append('type', type);
+        if(selectedFile) fd.append('file', selectedFile);
+        const res = await fetch(`${API_URL}/media/upload`, { method: 'POST', body: fd });
+        if(res.ok) { 
+            showToast("Media Uploaded Successfully!"); 
+            closeModal('mediaModal'); 
+            loadMedia(); 
+        }
+    }
+});
+
+// --- DROPDOWN LOGIC (Consolidated) ---
+const profileDropdown = document.getElementById('profileDropdown');
+const userProfileToggle = document.getElementById('userProfileToggle');
+
+if (userProfileToggle) {
+    userProfileToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        profileDropdown.classList.toggle('active');
+    });
+}
+
+// Close dropdown when clicking anywhere outside
+window.addEventListener('click', () => {
+    if (profileDropdown && profileDropdown.classList.contains('active')) {
+        profileDropdown.classList.remove('active');
+    }
+});
+
+// Mobile menu toggle
+const menuToggle = document.getElementById('menuToggle');
+if(menuToggle) {
+    menuToggle.addEventListener('click', () => {
+        document.getElementById('sidebar').classList.add('mobile-active');
+    });
+}
+
+// --- INITIALIZATION & GLOBALS ---
+window.onload = () => {
+    const saved = localStorage.getItem('cmsUser');
+    if(saved) {
+        currentUser = JSON.parse(saved);
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('dashboard').classList.add('active');
+        setupUI(); 
+        loadDashboard();
+    }
+};
+
+// Global assignment for HTML event handlers
+window.switchToPage = switchToPage;
+window.logoutUser = () => {
+    localStorage.removeItem('cmsUser'); 
+    location.reload();
+};
+
+window.openNewPageModal = () => openModal('pageModal');
+window.openNewPostModal = () => openModal('postModal');
+window.openMediaModal = () => openModal('mediaModal');
+window.openNewUserModal = () => openModal('userModal');
+
+// Sidebar menu clicks
+document.querySelectorAll('.menu-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchToPage(link.getAttribute('data-page'));
+    });
+});
+
+// Logout button (footer)
+const logoutBtn = document.getElementById('logoutBtn');
+if(logoutBtn) {
+    logoutBtn.addEventListener('click', window.logoutUser);
+}
+</script>
+</body>
+</html>
